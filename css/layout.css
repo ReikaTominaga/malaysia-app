@@ -1,0 +1,239 @@
+/* ============================================================
+   layout.css — app shell, sidebar, main area
+   ============================================================ */
+
+/* App shell */
+.app {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* ---- Sidebar ---- */
+.sidebar {
+  width: 224px;
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.sidebar__logo {
+  padding: 22px 20px 18px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar__logo h1 {
+  font-family: 'DM Serif Display', serif;
+  font-size: 17px;
+  color: var(--text);
+  line-height: 1.3;
+}
+.sidebar__logo p {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 3px;
+}
+
+.sidebar__section-label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text3);
+  padding: 14px 20px 4px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.sidebar__nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text2);
+  cursor: pointer;
+  transition: background .12s, color .12s;
+  border-left: 2px solid transparent;
+  user-select: none;
+}
+.sidebar__nav-item:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+.sidebar__nav-item.is-active {
+  color: var(--teal);
+  background: var(--teal-light);
+  border-left-color: var(--teal);
+}
+.sidebar__nav-icon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+
+/* ---- Sidebar bottom (API key + cost meter) ---- */
+.sidebar__bottom {
+  margin-top: auto;
+  padding: 14px 16px 18px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.api-key-block__label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text3);
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.api-key-block__input {
+  width: 100%;
+  padding: 7px 10px;
+  border: 1px solid var(--border2);
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  color: var(--text);
+  background: var(--bg);
+  outline: none;
+  transition: border-color .15s;
+}
+.api-key-block__input:focus { border-color: var(--teal); }
+.api-key-block__hint {
+  font-size: 10px;
+  color: var(--text3);
+  margin-top: 4px;
+  line-height: 1.4;
+}
+
+/* ---- Cost meter widget ---- */
+.cost-meter {
+  background: var(--surface2);
+  border-radius: var(--radius-sm);
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  transition: border-color .3s;
+}
+.cost-meter.is-active {
+  border-color: var(--teal-mid);
+  animation: meterGlow 2s ease-in-out infinite;
+}
+.cost-meter__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 7px;
+}
+.cost-meter__label {
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text3);
+  letter-spacing: .06em;
+  text-transform: uppercase;
+}
+.cost-meter__reset {
+  font-size: 10px;
+  color: var(--text3);
+  cursor: pointer;
+  padding: 1px 5px;
+  border-radius: 4px;
+  transition: background .12s, color .12s;
+}
+.cost-meter__reset:hover { background: var(--surface3); color: var(--text2); }
+
+.cost-meter__month {
+  font-size: 10px;
+  color: var(--text3);
+  margin-bottom: 4px;
+  letter-spacing: .03em;
+}
+
+.cost-meter__amount {
+  font-family: 'DM Serif Display', serif;
+  font-size: 22px;
+  color: var(--cost-0);
+  line-height: 1;
+  transition: color .4s;
+}
+.cost-meter__amount.tier-0 { color: var(--cost-0); }
+.cost-meter__amount.tier-1 { color: var(--cost-1); }
+.cost-meter__amount.tier-2 { color: var(--cost-2); }
+.cost-meter__amount.tier-3 { color: var(--cost-3); }
+.cost-meter__amount.tier-4 { color: var(--cost-4); }
+
+.cost-meter__bar-wrap {
+  height: 5px;
+  background: var(--surface3);
+  border-radius: 3px;
+  margin: 6px 0 5px;
+  overflow: hidden;
+}
+.cost-meter__bar {
+  height: 5px;
+  border-radius: 3px;
+  background: var(--cost-0);
+  transition: width .5s ease, background .4s;
+  max-width: 100%;
+}
+.cost-meter__bar.tier-0 { background: var(--cost-0); }
+.cost-meter__bar.tier-1 { background: var(--cost-1); }
+.cost-meter__bar.tier-2 { background: var(--cost-2); }
+.cost-meter__bar.tier-3 { background: var(--cost-3); }
+.cost-meter__bar.tier-4 { background: var(--cost-4); }
+
+.cost-meter__detail {
+  font-size: 10px;
+  color: var(--text3);
+  display: flex;
+  justify-content: space-between;
+}
+
+.cost-meter__toast {
+  display: none;
+  align-items: center;
+  gap: 5px;
+  margin-top: 6px;
+  padding: 5px 8px;
+  border-radius: var(--radius-xs);
+  font-size: 11px;
+  font-weight: 500;
+  animation: coinPop .4s cubic-bezier(.175,.885,.32,1.275);
+}
+.cost-meter__toast.is-visible { display: flex; }
+.cost-meter__toast--cheap  { background: #DCFCE7; color: #166534; }
+.cost-meter__toast--mid    { background: #FEF9C3; color: #854D0E; }
+.cost-meter__toast--pricey { background: #FEE2E2; color: #991B1B; }
+
+/* ---- Main content area ---- */
+.main {
+  flex: 1;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+/* ---- Pages ---- */
+.page {
+  display: none;
+  padding: 32px 40px;
+  max-width: 1100px;
+  animation: fadeIn .18s ease;
+}
+.page.is-active { display: block; }
+
+.page__title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 28px;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+.page__subtitle {
+  font-size: 14px;
+  color: var(--text2);
+  margin-bottom: 28px;
+}

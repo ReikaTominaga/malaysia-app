@@ -1,0 +1,18 @@
+# One-time scripts (contain secrets)
+github_push.ps1
+
+# Build output
+dist/
+
+# Node.js
+node_modules/
+npm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
