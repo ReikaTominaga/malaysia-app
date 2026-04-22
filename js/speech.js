@@ -1,7 +1,8 @@
 /* ============================================================
    speech.js — Web Speech API wrapper + Malay TTS
    英語: ブラウザ内蔵の高品質音声
-   マレー語: ResponsiveVoice (Malaysian Female) → Google TTS → ブラウザ内蔵の順でフォールバック
+   マレー語: Google Translate TTS（最優先） → ブラウザ内蔵（フォールバック）
+   ※ ResponsiveVoice無料版はマレー語の音質が低いため使用しない
    ============================================================ */
 
 'use strict';
@@ -25,32 +26,41 @@ const Speech = (() => {
 
   function speakMalay(text) {
     if (!text) return;
-
-    // 再生中のものを止める
     _stopAll();
 
-    /* ① ResponsiveVoice — Malaysian Female（最優先・最高品質） */
-    if (typeof responsiveVoice !== 'undefined') {
-      responsiveVoice.cancel();
-      responsiveVoice.speak(text, 'Malaysian Female', {
-        rate:    0.9,
-        onstart: () => {},
-        onerror: () => _googleTTS(text),   // 失敗したら次へ
-      });
-      return;
+    /* ① Chrome内蔵の高品質マレー語音声を試みる */
+    if ('speechSynthesis' in window) {
+      const voices = window.speechSynthesis.getVoices();
+
+      // Chrome の "Google Bahasa Malaysia" は高品質オンライン音声
+      const googleMs = voices.find(v => v.name === 'Google Bahasa Malaysia')
+                    || voices.find(v => v.name.toLowerCase().includes('malay'))
+                    || voices.find(v => v.lang === 'ms-MY' && v.name.toLowerCase().includes('google'))
+                    || voices.find(v => v.lang === 'ms-MY')
+                    || voices.find(v => v.lang.startsWith('ms'));
+
+      if (googleMs) {
+        window.speechSynthesis.cancel();
+        const u  = new SpeechSynthesisUtterance(text);
+        u.voice  = googleMs;
+        u.lang   = googleMs.lang;
+        u.rate   = 0.85;
+        window.speechSynthesis.speak(u);
+        return;
+      }
     }
 
-    /* ② ResponsiveVoice がロードされていない場合 → Google TTS */
+    /* ② Chrome にマレー語音声がない場合 → Google Translate TTS */
     _googleTTS(text);
   }
 
-  /* Google Translate TTS（中品質・フォールバック） */
+  /* Google Translate TTS — Google翻訳と同じ音声エンジン */
   function _googleTTS(text) {
     const url = 'https://translate.googleapis.com/translate_tts'
       + '?ie=UTF-8'
       + '&q='     + encodeURIComponent(text)
       + '&tl=ms'
-      + '&client=gtx';
+      + '&client=tw-ob';
 
     const audio = new Audio(url);
     _currentAudio = audio;
@@ -64,13 +74,9 @@ const Speech = (() => {
   function _browserTTS(text) {
     if (!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
-    const u      = new SpeechSynthesisUtterance(text);
-    u.rate       = 0.85;
-    const voices = window.speechSynthesis.getVoices();
-    const voice  = voices.find(v => v.lang === 'ms-MY')
-                || voices.find(v => v.lang.startsWith('ms'));
-    if (voice) { u.voice = voice; u.lang = voice.lang; }
-    else        { u.lang = 'ms-MY'; }
+    const u  = new SpeechSynthesisUtterance(text);
+    u.rate   = 0.85;
+    u.lang   = 'ms-MY';
     window.speechSynthesis.speak(u);
   }
 
