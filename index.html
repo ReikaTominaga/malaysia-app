@@ -127,6 +127,10 @@
       <svg viewBox="0 0 16 16" fill="none"><path d="M4 2h8a1 1 0 011 1v11l-5-3-5 3V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
       保存
     </button>
+    <button class="mobile-nav__item" data-page="settings">
+      <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      設定
+    </button>
   </nav>
 
   <!-- ============ Main ============ -->
@@ -322,6 +326,33 @@
           <path d="M12 8h24a3 3 0 013 3v28l-15-8-15 8V11a3 3 0 013-3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
         </svg>
         <p>まだブックマークがありません。<br>フレーズ集でブックマークを追加しましょう。</p>
+      </div>
+    </div>
+
+    <!-- SETTINGS (モバイル用) -->
+    <div class="page" id="page-settings">
+      <p class="page__title">設定</p>
+      <p class="page__subtitle">AIロールプレイに必要なAPIキーを設定します。</p>
+      <div class="card" style="margin-bottom:16px;">
+        <div class="api-key-block__label" style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px;">Anthropic API Key</div>
+        <input type="password" class="api-key-block__input" id="apiKeyInputMobile"
+               placeholder="sk-ant-..." autocomplete="off"
+               style="width:100%;padding:10px 12px;border:1px solid var(--border2);border-radius:var(--radius-sm);font-size:14px;color:var(--text);background:var(--bg);outline:none;">
+        <div style="font-size:12px;color:var(--text3);margin-top:8px;line-height:1.5;">
+          AIロールプレイに必要です。<br>
+          <a href="https://console.anthropic.com" target="_blank" style="color:var(--teal);">console.anthropic.com</a> で取得できます。
+        </div>
+      </div>
+      <div class="card">
+        <div class="cost-meter__label" style="font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;">💰 今月のAPI使用料金</div>
+        <div class="cost-meter__amount" id="costAmountMobile" style="font-size:28px;font-family:'DM Serif Display',serif;">¥0.000</div>
+        <div class="cost-meter__bar-wrap" style="height:5px;background:var(--surface2);border-radius:3px;margin:10px 0 6px;overflow:hidden;">
+          <div class="cost-meter__bar" id="costBarMobile" style="width:0%;height:5px;border-radius:3px;background:var(--cost-0);"></div>
+        </div>
+        <div id="costDetailMobile" style="font-size:12px;color:var(--text3);display:flex;justify-content:space-between;">
+          <span>0回</span><span>in:0k / out:0k</span>
+        </div>
+        <button onclick="Cost.reset()" style="margin-top:12px;font-size:12px;color:var(--text3);background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:6px 14px;cursor:pointer;font-family:inherit;">リセット</button>
       </div>
     </div>
 
