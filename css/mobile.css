@@ -1,0 +1,116 @@
+/* ============================================================
+   mobile.css — スマホ対応レスポンシブスタイル
+   ブレークポイント: 768px 以下でモバイルレイアウトに切り替え
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+  /* ---- サイドバーを非表示 ---- */
+  .sidebar { display: none; }
+
+  /* ---- メインコンテンツ: フル幅 + 下部タブバー分の余白 ---- */
+  .main { padding-bottom: 72px; }
+
+  /* ---- ページ余白を縮小 ---- */
+  .page { padding: 20px 16px; }
+  .page__title    { font-size: 22px; }
+  .page__subtitle { font-size: 13px; margin-bottom: 20px; }
+
+  /* ---- 下部タブバー ---- */
+  .mobile-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    z-index: 100;
+    height: 64px;
+  }
+  .mobile-nav__item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    font-size: 10px;
+    color: var(--text3);
+    cursor: pointer;
+    padding: 6px 2px;
+    transition: color .12s;
+    border: none;
+    background: none;
+    font-family: inherit;
+  }
+  .mobile-nav__item.is-active { color: var(--teal); }
+  .mobile-nav__item svg { width: 20px; height: 20px; }
+
+  /* ---- ホーム ---- */
+  .home-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .home-card { padding: 16px; }
+  .home-card h3 { font-size: 14px; }
+  .home-card p  { font-size: 11px; }
+
+  .today-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 18px;
+  }
+  .today-banner__en { font-size: 18px; }
+  .today-banner > div:last-child {
+    flex-direction: row;
+    width: 100%;
+  }
+  .today-banner__play { flex: 1; text-align: center; }
+
+  /* ---- 今日のフレーズ ---- */
+  .today-big-card { padding: 22px 16px; }
+  .today-big-card__en { font-size: 26px; }
+  .today-big-card__jp { font-size: 15px; }
+  .today-big-card__ms { font-size: 18px; }
+  .today-big-card__actions {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .today-big-card__actions .btn { flex: 1; justify-content: center; font-size: 12px; }
+  .today-related-grid { grid-template-columns: 1fr; }
+
+  /* ---- フレーズ集 ---- */
+  .phrase-grid { grid-template-columns: 1fr; }
+
+  /* ---- クイズ ---- */
+  .quiz-type-tabs {
+    gap: 6px;
+  }
+  .quiz-type-tab {
+    padding: 7px 12px;
+    font-size: 12px;
+  }
+  .quiz-box {
+    padding: 20px 16px;
+    max-width: 100%;
+  }
+  .quiz-box__main-text { font-size: 18px; }
+  .quiz-box__score-num { font-size: 48px; }
+
+  /* ---- ロールプレイ ---- */
+  .scenario-grid { grid-template-columns: repeat(2, 1fr); }
+  .chat-container { flex-direction: column; }
+  .chat-sidebar { width: 100%; }
+  .chat-main { height: 420px; }
+
+  /* ---- 豆知識 ---- */
+  .tips-grid { grid-template-columns: 1fr; }
+
+}
+
+/* デスクトップでは下部タブバーを非表示 */
+@media (min-width: 769px) {
+  .mobile-nav { display: none; }
+}
