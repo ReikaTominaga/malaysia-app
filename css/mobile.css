@@ -110,7 +110,4 @@
 
 }
 
-/* デスクトップでは下部タブバーを非表示 */
-@media (min-width: 769px) {
-  .mobile-nav { display: none; }
-}
+/* デスク

@@ -72,6 +72,4 @@ malaysia-app/
 
 1. [Anthropic Console](https://console.anthropic.com) でAPIキーを取得
 2. アプリ左下の「Anthropic API Key」欄に入力
-3. APIを使うたびにサイドバーで料金がリアルタイム表示されます（月次で自動リセット）
-
-料金の目安: 1回の会話（数往復）≒ **約0.1〜0.3円**
+3. APIを使うたびにサイドバーで料金がリアルタイム表示されます（月次で自動リセット

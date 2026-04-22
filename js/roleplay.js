@@ -109,9 +109,10 @@ Example feedback: 【FB】"Could I have ~?" はより丁寧な注文表現です
       const res = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
-          'Content-Type':     'application/json',
-          'x-api-key':        apiKey,
-          'anthropic-version': '2023-06-01',
+          'Content-Type':                  'application/json',
+          'x-api-key':                     apiKey,
+          'anthropic-version':             '2023-06-01',
+          'anthropic-dangerous-allow-browser': 'true',
         },
         body: JSON.stringify({
           model:      'claude-sonnet-4-20250514',
@@ -184,8 +185,11 @@ Example feedback: 【FB】"Could I have ~?" はより丁寧な注文表現です
   }
 
   function _getApiKey() {
-    const el = document.getElementById('apiKeyInput');
-    return el ? el.value.trim() : '';
+    const el       = document.getElementById('apiKeyInput');
+    const elMobile = document.getElementById('apiKeyInputMobile');
+    return (el && el.value.trim())       ? el.value.trim()
+         : (elMobile && elMobile.value.trim()) ? elMobile.value.trim()
+         : '';
   }
 
   return {

@@ -49,6 +49,16 @@ function initApp() {
     if (AppState.todayPhrase) Speech.speakMalay(AppState.todayPhrase.ms);
   });
 
+  // ---- モバイルAPIキー入力欄をPC側と同期 ----
+  const apiKeyPC     = document.getElementById('apiKeyInput');
+  const apiKeyMobile = document.getElementById('apiKeyInputMobile');
+  if (apiKeyPC && apiKeyMobile) {
+    // モバイル → PC
+    apiKeyMobile.addEventListener('input', () => { apiKeyPC.value = apiKeyMobile.value; });
+    // PC → モバイル
+    apiKeyPC.addEventListener('input', () => { apiKeyMobile.value = apiKeyPC.value; });
+  }
+
   // ---- Navigate to home on load ----
   Router.navigate('home');
 }
