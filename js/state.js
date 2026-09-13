@@ -9,6 +9,9 @@ const AppState = {
   // Navigation
   currentPage: 'home',
 
+  // 学習対象の第二言語（'ms' | 'es'）。切り替えは Lang.set() 経由で行う
+  targetLang: 'ms',
+
   // Phrase page
   currentScene: 'greeting',
 
@@ -16,7 +19,7 @@ const AppState = {
   bookmarks: new Set(),
 
   // Quiz
-  quizType:     'listening',   // 'listening' | 'pronunciation' | 'selfcheck'
+  quizType:     'listening',   // 'listening' | 'pronunciation' | 'selfcheck' | 'second-listening' | 'second-speaking'
   quizItems:    [],
   quizIndex:    0,
   quizScore:    0,

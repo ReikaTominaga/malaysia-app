@@ -1,7 +1,7 @@
 /* ============================================================
-   speech.js — Web Speech API wrapper + Malay TTS
+   speech.js — Web Speech API wrapper + Malay/Spanish TTS
    英語: ブラウザ内蔵の高品質音声
-   マレー語: Chrome内蔵の Google Bahasa Malaysia 優先
+   マレー語・スペイン語: Chrome内蔵の Google 音声を優先
              → Google Translate TTS → ブラウザ内蔵の順でフォールバック
    ============================================================ */
 
@@ -21,89 +21,112 @@ var Speech = (function () {
     window.speechSynthesis.speak(u);
   }
 
-  /* ---- マレー語 TTS ---- */
+  /* ---- マレー語・スペイン語 TTS（共通ロジック） ---- */
   var _currentAudio = null;
 
   function speakMalay(text) {
+    _speakForeign(text, {
+      preferredNames: ['Google Bahasa Malaysia'],
+      nameHint:       'malay',
+      exactLang:      'ms-MY',
+      langPrefix:     'ms',
+      tl:             'ms',
+      fallbackLang:   'ms-MY',
+      rate:           0.85,
+    });
+  }
+
+  function speakSpanish(text) {
+    _speakForeign(text, {
+      preferredNames: ['Google español', 'Google español de Estados Unidos'],
+      nameHint:       'spanish',
+      exactLang:      'es-ES',
+      langPrefix:     'es',
+      tl:             'es',
+      fallbackLang:   'es-ES',
+      rate:           0.9,
+    });
+  }
+
+  function _speakForeign(text, cfg) {
     if (!text) return;
     _stopAll();
 
     if (!('speechSynthesis' in window)) {
-      _googleTTS(text);
+      _googleTTS(text, cfg);
       return;
     }
 
     var voices = window.speechSynthesis.getVoices();
     if (voices.length > 0) {
-      _speakMalayWithVoices(text, voices);
+      _speakForeignWithVoices(text, voices, cfg);
     } else {
       window.speechSynthesis.onvoiceschanged = function () {
         window.speechSynthesis.onvoiceschanged = null;
-        _speakMalayWithVoices(text, window.speechSynthesis.getVoices());
+        _speakForeignWithVoices(text, window.speechSynthesis.getVoices(), cfg);
       };
       setTimeout(function () {
         var v = window.speechSynthesis.getVoices();
         if (v.length > 0) {
-          _speakMalayWithVoices(text, v);
+          _speakForeignWithVoices(text, v, cfg);
         } else {
-          _googleTTS(text);
+          _googleTTS(text, cfg);
         }
       }, 1000);
     }
   }
 
-  function _speakMalayWithVoices(text, voices) {
-    var ms = null;
+  function _speakForeignWithVoices(text, voices, cfg) {
+    var chosen = null;
     for (var i = 0; i < voices.length; i++) {
-      var v = voices[i];
-      if (v.name === 'Google Bahasa Malaysia') { ms = v; break; }
+      if (cfg.preferredNames.indexOf(voices[i].name) !== -1) { chosen = voices[i]; break; }
     }
-    if (!ms) {
+    if (!chosen) {
       for (var i = 0; i < voices.length; i++) {
-        if (voices[i].name.toLowerCase().indexOf('malay') !== -1) { ms = voices[i]; break; }
+        if (voices[i].name.toLowerCase().indexOf(cfg.nameHint) !== -1) { chosen = voices[i]; break; }
       }
     }
-    if (!ms) {
+    if (!chosen) {
       for (var i = 0; i < voices.length; i++) {
-        if (voices[i].lang === 'ms-MY') { ms = voices[i]; break; }
+        if (voices[i].lang === cfg.exactLang) { chosen = voices[i]; break; }
       }
     }
-    if (!ms) {
+    if (!chosen) {
       for (var i = 0; i < voices.length; i++) {
-        if (voices[i].lang.indexOf('ms') === 0) { ms = voices[i]; break; }
+        if (voices[i].lang.indexOf(cfg.langPrefix) === 0) { chosen = voices[i]; break; }
       }
     }
 
-    if (ms) {
+    if (chosen) {
       window.speechSynthesis.cancel();
       var u = new SpeechSynthesisUtterance(text);
-      u.voice = ms;
-      u.lang  = ms.lang;
-      u.rate  = 0.85;
+      u.voice = chosen;
+      u.lang  = chosen.lang;
+      u.rate  = cfg.rate;
       window.speechSynthesis.speak(u);
     } else {
-      _googleTTS(text);
+      _googleTTS(text, cfg);
     }
   }
 
-  function _googleTTS(text) {
+  function _googleTTS(text, cfg) {
     var url = 'https://translate.googleapis.com/translate_tts'
       + '?ie=UTF-8&q=' + encodeURIComponent(text)
-      + '&tl=ms&client=tw-ob';
+      + '&tl=' + cfg.tl + '&client=tw-ob';
     var audio = new Audio(url);
     _currentAudio = audio;
-    audio.onerror = function () { _browserTTS(text); };
-    audio.onabort = function () { _browserTTS(text); };
+    audio.onerror = function () { _browserTTS(text, cfg); };
+    audio.onabort = function () { _browserTTS(text, cfg); };
     var p = audio.play();
-    if (p) p.catch(function () { _browserTTS(text); });
+    if (p) p.catch(function () { _browserTTS(text, cfg); });
   }
 
-  function _browserTTS(text) {
+  function _browserTTS(text, cfg) {
     if (!('speechSynthesis' in window)) return;
     window.speechSynthesis.cancel();
     var u = new SpeechSynthesisUtterance(text);
-    u.rate = 0.85;
-    u.lang = 'ms-MY';
+    u.rate = cfg.rate;
+    u.lang = cfg.fallbackLang;
     window.speechSynthesis.speak(u);
   }
 
@@ -148,7 +171,8 @@ var Speech = (function () {
 
   /* ---- 類似度スコア ---- */
   function similarity(spoken, target) {
-    function normalise(s) { return s.toLowerCase().replace(/[^a-z\s']/g, '').trim(); }
+    // \p{L} でアクセント付き文字（スペイン語の á/ñ 等）も文字として扱う
+    function normalise(s) { return s.toLowerCase().normalize('NFC').replace(/[^\p{L}\s']/gu, '').trim(); }
     var aWords = normalise(spoken).split(/\s+/).filter(Boolean);
     var bWords = normalise(target).split(/\s+/).filter(Boolean);
     if (bWords.length === 0) return 0;
@@ -164,6 +188,7 @@ var Speech = (function () {
   return {
     speak:            speak,
     speakMalay:       speakMalay,
+    speakSpanish:     speakSpanish,
     startRecognition: startRecognition,
     similarity:       similarity,
     PASS_THRESHOLD:   PASS_THRESHOLD

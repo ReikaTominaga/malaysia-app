@@ -6,6 +6,10 @@
 'use strict';
 
 function initApp() {
+  // ---- 言語設定をlocalStorageから復元し、静的UIテキストに反映 ----
+  Lang.load();
+  Lang.applyUI();
+
   // ---- Register page initialisers with Router ----
   Router.register('phrases',   () => Phrases.renderPhrases());
   Router.register('quiz',      () => Quiz.render());
@@ -43,10 +47,11 @@ function initApp() {
     if (AppState.todayPhrase) Speech.speak(AppState.todayPhrase.en);
   });
 
-  const bannerPlayMs = document.getElementById('todayBannerPlayMs');
-  if (bannerPlayMs) bannerPlayMs.addEventListener('click', (e) => {
+  const bannerPlaySecond = document.getElementById('todayBannerPlaySecond');
+  if (bannerPlaySecond) bannerPlaySecond.addEventListener('click', (e) => {
     e.stopPropagation();
-    if (AppState.todayPhrase) Speech.speakMalay(AppState.todayPhrase.ms);
+    const lang = Lang.current();
+    if (AppState.todayPhrase) Speech[lang.speakMethod](AppState.todayPhrase[lang.field]);
   });
 
   // ---- モバイルAPIキー入力欄をPC側と同期 ----

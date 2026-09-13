@@ -14,6 +14,7 @@ const read    = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
 
 const dataJs    = read('js/data.js');
 const stateJs   = read('js/state.js');
+const langJs    = read('js/lang.js');
 const speechJs  = read('js/speech.js');
 const costJs    = read('js/cost.js');
 const routerJs  = read('js/router.js');
@@ -72,7 +73,13 @@ console.log('\n📦 Unit — data.js integrity');
 test('PHRASES array declared', () => contains(dataJs, 'const PHRASES = ['));
 test('SCENES array declared',  () => contains(dataJs, 'const SCENES = ['));
 test('SCENARIOS array declared', () => contains(dataJs, 'const SCENARIOS = ['));
-test('TIPS array declared',    () => contains(dataJs, 'const TIPS = ['));
+test('TIPS_MS array declared', () => contains(dataJs, 'const TIPS_MS = ['));
+test('TIPS_ES array declared', () => contains(dataJs, 'const TIPS_ES = ['));
+test('TARGET_LANGS declared',  () => contains(dataJs, 'const TARGET_LANGS = {'));
+test('TARGET_LANGS has ms and es entries', () => {
+  contains(dataJs, 'ms: {');
+  contains(dataJs, 'es: {');
+});
 test('SCENARIO_ROLES declared', () => contains(dataJs, 'const SCENARIO_ROLES = {'));
 
 const SCENE_IDS = ['greeting','airport','hotel','restaurant','shopping','transport'];
@@ -83,7 +90,7 @@ SCENE_IDS.forEach(id => {
 
 test('PHRASES >= 30 entries', () => countAtLeast(dataJs, "scene:'", 30));
 
-const PHRASE_FIELDS = ["jp:'","en:'","kana:'","ms:'"];
+const PHRASE_FIELDS = ["jp:'","en:'","kana:'","ms:'","es:'","kanaEs:'"];
 PHRASE_FIELDS.forEach(f => test(`Phrase field ${f} present`, () => contains(dataJs, f)));
 
 const SCENARIO_IDS = ['restaurant','hotel','shopping','transport','airport','trouble'];
@@ -92,7 +99,7 @@ SCENARIO_IDS.forEach(id => {
   test(`Scenario role '${id}' present in SCENARIO_ROLES`, () => contains(dataJs, id));
 });
 
-test('TIPS >= 8 entries', () => countAtLeast(dataJs, "icon:'", 8));
+test('TIPS_MS + TIPS_ES >= 16 entries combined', () => countAtLeast(dataJs, "icon:'", 16));
 test('All scenarios have prompts', () => countAtLeast(dataJs, 'prompts:[', 6));
 
 // ============================================================
@@ -101,11 +108,23 @@ console.log('\n📦 Unit — state.js');
 
 test('AppState declared', () => contains(stateJs, 'const AppState = {'));
 test('bookmarks is a Set', () => contains(stateJs, 'bookmarks: new Set()'));
+test('targetLang defaults to ms', () => contains(stateJs, "targetLang: 'ms'"));
 test('quizType default is listening', () => contains(stateJs, "quizType:     'listening'"));
 test('chatHistory initialised', () => contains(stateJs, 'chatHistory:      []'));
 test('totalInputTokens initialised', () => contains(stateJs, 'totalInputTokens:  0'));
 test('totalOutputTokens initialised', () => contains(stateJs, 'totalOutputTokens: 0'));
 test('callCount initialised', () => contains(stateJs, 'callCount:         0'));
+
+// ============================================================
+console.log('\n🌐 Unit — lang.js');
+// ============================================================
+
+test('Lang module declared', () => contains(langJs, 'const Lang = ('));
+test('Lang.current() defined', () => contains(langJs, 'function current()'));
+test('Lang.set() defined', () => contains(langJs, 'function set(langId)'));
+test('Lang.applyUI() defined', () => contains(langJs, 'function applyUI()'));
+test('Lang.set() persists to localStorage', () => contains(langJs, "localStorage.setItem('malaysia_targetLang'"));
+test('Lang.set() rejects unknown language ids', () => contains(langJs, 'if (!TARGET_LANGS[langId]) return'));
 
 // ============================================================
 console.log('\n🔊 Unit — speech.js');

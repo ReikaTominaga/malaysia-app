@@ -9,18 +9,20 @@ const Phrases = (() => {
   /* ---- Phrase card HTML ---- */
 
   function phraseCardHTML(phrase) {
-    const bm    = AppState.bookmarks.has(phrase.id);
-    const enEsc = phrase.en.replace(/'/g, "\\'");
-    const msEsc = phrase.ms.replace(/'/g, "\\'");
+    const lang    = Lang.current();
+    const bm      = AppState.bookmarks.has(phrase.id);
+    const enEsc   = phrase.en.replace(/'/g, "\\'");
+    const second  = phrase[lang.field];
+    const secondEsc = second.replace(/'/g, "\\'");
     return `
       <div class="phrase-card" id="pcard-${phrase.id}">
         <div class="phrase-card__jp">${phrase.jp}</div>
         <div class="phrase-card__en">${phrase.en}</div>
-        <div class="phrase-card__ms">${phrase.ms}</div>
-        <div class="phrase-card__kana"><span class="phrase-card__kana-label">読み方 </span>${phrase.kana}</div>
+        <div class="phrase-card__second">${second}</div>
+        <div class="phrase-card__kana"><span class="phrase-card__kana-label">読み方 </span>${phrase[lang.kanaField]}</div>
         <div class="phrase-card__actions">
           <button class="play-btn" onclick="Speech.speak('${enEsc}')" title="英語を聞く">▶ 英語</button>
-          <button class="play-btn play-btn--ms" onclick="Speech.speakMalay('${msEsc}')" title="マレー語を聞く">▶ マレー語</button>
+          <button class="play-btn play-btn--${lang.cssSuffix}" onclick="Speech.${lang.speakMethod}('${secondEsc}')" title="${lang.label}を聞く">▶ ${lang.label}</button>
           <button class="bookmark-btn ${bm ? 'is-bookmarked' : ''}"
                   onclick="Phrases.toggleBookmark(${phrase.id})"
                   title="ブックマーク">
@@ -124,7 +126,7 @@ const Phrases = (() => {
   function pickTodayPhrase() {
     const idx = Math.floor(Math.random() * PHRASES.length);
     AppState.todayPhrase = PHRASES[idx];
-    _updateBanner();
+    updateBanner();
   }
 
   function reroll() {
@@ -132,22 +134,24 @@ const Phrases = (() => {
     renderTodayPage();
   }
 
-  function _updateBanner() {
+  function updateBanner() {
     const p = AppState.todayPhrase;
     if (!p) return;
-    _setText('todayBannerEn',   p.en);
-    _setText('todayBannerJp',   p.jp);
-    _setText('todayBannerKana', p.kana);
-    _setText('todayBannerMs',   p.ms);
+    const lang = Lang.current();
+    _setText('todayBannerEn',     p.en);
+    _setText('todayBannerJp',     p.jp);
+    _setText('todayBannerSecond', p[lang.field]);
+    _setText('todayBannerKana',   p[lang.kanaField]);
   }
 
   function renderTodayPage() {
     const p = AppState.todayPhrase;
     if (!p) return;
-    _setText('todayPageEn',   p.en);
-    _setText('todayPageJp',   p.jp);
-    _setText('todayPageKana', p.kana);
-    _setText('todayPageMs',   p.ms);
+    const lang = Lang.current();
+    _setText('todayPageEn',     p.en);
+    _setText('todayPageJp',     p.jp);
+    _setText('todayPageSecond', p[lang.field]);
+    _setText('todayPageKana',   p[lang.kanaField]);
 
     const related = PHRASES
       .filter(ph => ph.scene === p.scene && ph.id !== p.id)
@@ -172,5 +176,6 @@ const Phrases = (() => {
     pickTodayPhrase,
     reroll,
     renderTodayPage,
+    updateBanner,
   };
 })();

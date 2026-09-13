@@ -189,3 +189,27 @@
 .quiz-type-tab--ms { border-top: 2px solid #7C3AED; color: #7C3AED; }
 .quiz-type-tab--ms.is-active { background: #7C3AED; color: white; }
 .quiz-type-tab--ms:hover { border-color: #7C3AED; color: #7C3AED; }
+
+/* ---- スペイン語 mic button ---- */
+.mic-btn--es { background: var(--spanish); }
+.mic-btn--es:hover { background: #C2410C; }
+
+/* ---- スペイン語専用ボタン ---- */
+.btn--es {
+  background: var(--spanish-light);
+  color: var(--spanish);
+  border: 1px solid #FDBA88;
+}
+.btn--es:hover { background: #FFE4CC; }
+
+/* ---- スペイン語専用 play button ---- */
+.play-btn--es {
+  background: var(--spanish-light);
+  color: var(--spanish);
+}
+.play-btn--es:hover { background: #FFE4CC; }
+
+/* ---- クイズタブ スペイン語バリアント ---- */
+.quiz-type-tab--es { border-top: 2px solid var(--spanish); color: var(--spanish); }
+.quiz-type-tab--es.is-active { background: var(--spanish); color: white; }
+.quiz-type-tab--es:hover { border-color: var(--spanish); color: var(--spanish); }

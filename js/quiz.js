@@ -1,11 +1,15 @@
 /* ============================================================
    quiz.js — Quiz module
    Modes:
-     listening     … 英語音声 → 日本語4択
-     pronunciation … 英語フレーズを発音チェック
-     selfcheck     … 日本語 → 英語 自己採点
-     ms-listening  … マレー語音声 → 日本語4択  ★NEW
-     ms-speaking   … マレー語フレーズを音声で発話 ★NEW
+     listening       … 英語音声 → 日本語4択
+     pronunciation   … 英語フレーズを発音チェック
+     selfcheck       … 日本語 → 英語 自己採点
+     second-listening … 第二言語(マレー語 or スペイン語)音声 → 日本語4択
+     second-speaking  … 第二言語フレーズを音声で発話
+   「第二言語」は Lang.current()（AppState.targetLang）で決まる。
+   マレー語・スペイン語のクイズを1画面に同時に出さないため、
+   タブは常に2つ（second-listening / second-speaking）で、
+   ラベル・色は Lang.applyUI() が言語ごとに切り替える。
    ============================================================ */
 
 'use strict';
@@ -37,9 +41,9 @@ const Quiz = (() => {
     switch (AppState.quizType) {
       case 'listening':     _renderListening(el);     break;
       case 'pronunciation': _renderPronunciation(el); break;
-      case 'ms-listening':  _renderMsListening(el);   break;
-      case 'ms-speaking':   _renderMsSpeaking(el);    break;
-      default:              _renderSelfCheck(el);     break;
+      case 'second-listening': _renderSecondListening(el); break;
+      case 'second-speaking':  _renderSecondSpeaking(el);  break;
+      default:                 _renderSelfCheck(el);       break;
     }
   }
 
@@ -195,18 +199,19 @@ const Quiz = (() => {
 
   function revealSelfCheck(id) {
     const q = PHRASES.find(p => p.id === id);
+    const lang = Lang.current();
     const enEsc = q.en.replace(/'/g, "\\'");
-    const msEsc = q.ms.replace(/'/g, "\\'");
+    const secondEsc = q[lang.field].replace(/'/g, "\\'");
     const areaEl = document.getElementById('selfRevealArea');
     if (!areaEl) return;
     areaEl.innerHTML = `
       <div class="selfcheck-reveal">
         <div class="selfcheck-reveal__answer">${q.en}</div>
-        <div style="font-size:12px;color:var(--teal);margin-bottom:4px;">${q.kana}</div>
-        <div style="font-size:13px;color:var(--text2);margin-bottom:12px;">マレー語: <strong>${q.ms}</strong></div>
-        <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <div style="font-size:12px;color:var(--teal);margin-bottom:4px;">${q[lang.kanaField]}</div>
+        <div style="font-size:13px;color:var(--text2);margin-bottom:12px;">${lang.label}: <strong>${q[lang.field]}</strong></div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
           <button class="play-btn" onclick="Speech.speak('${enEsc}')">▶ 英語を聞く</button>
-          <button class="play-btn play-btn--ms" onclick="Speech.speakMalay('${msEsc}')">▶ マレー語を聞く</button>
+          <button class="play-btn play-btn--${lang.cssSuffix}" onclick="Speech.${lang.speakMethod}('${secondEsc}')">▶ ${lang.label}を聞く</button>
         </div>
       </div>
       <div class="selfcheck-btns">
@@ -221,34 +226,35 @@ const Quiz = (() => {
   }
 
   /* ================================================================
-     ★ NEW: Mode: マレー語リスニング (マレー語音声 → 日本語4択)
+     Mode: 第二言語リスニング (マレー語 or スペイン語 音声 → 日本語4択)
      ================================================================ */
 
-  function _renderMsListening(el) {
+  function _renderSecondListening(el) {
+    const lang = Lang.current();
     const q = AppState.quizItems[AppState.quizIndex];
     const wrong = PHRASES.filter(p => p.id !== q.id).sort(() => Math.random() - .5).slice(0, 3);
     const options = [q, ...wrong].sort(() => Math.random() - .5);
     const pct = _pct();
-    const msEsc = q.ms.replace(/'/g, "\\'");
+    const secondEsc = q[lang.field].replace(/'/g, "\\'");
 
     el.innerHTML = `
       <div class="quiz-box">
         <div class="quiz-box__progress">${AppState.quizIndex + 1} / ${AppState.quizItems.length}　スコア: ${AppState.quizScore}</div>
         <div class="quiz-box__progress-wrap">
-          <div class="quiz-box__progress-bar" style="width:${pct}%;background:#1570EF"></div>
+          <div class="quiz-box__progress-bar" style="width:${pct}%;background:${lang.cssSuffix === 'es' ? 'var(--spanish)' : '#7C3AED'}"></div>
         </div>
-        <div class="quiz-box__question">マレー語の音声を聞いて、日本語の意味を選んでください</div>
+        <div class="quiz-box__question">${lang.label}の音声を聞いて、日本語の意味を選んでください</div>
         <div class="quiz-box__hint" style="font-size:12px;color:var(--text3);margin-bottom:12px;">
-          ※ マレー語音声が出ない場合は、OS/ブラウザのマレー語ボイスが未インストールの可能性があります
+          ※ ${lang.label}音声が出ない場合は、OS/ブラウザの${lang.label}ボイスが未インストールの可能性があります
         </div>
         <div style="margin-bottom:20px;">
-          <button class="btn btn--ms" onclick="Speech.speakMalay('${msEsc}')">
-            🔊 マレー語を聞く
+          <button class="btn btn--${lang.cssSuffix}" onclick="Speech.${lang.speakMethod}('${secondEsc}')">
+            🔊 ${lang.label}を聞く
           </button>
         </div>
         <div class="quiz-options" id="quizOptions">
           ${options.map(o =>
-            `<button class="quiz-option" onclick="Quiz.answerMsListening(${o.id},${q.id})">${o.jp}</button>`
+            `<button class="quiz-option" onclick="Quiz.answerSecondListening(${o.id},${q.id})">${o.jp}</button>`
           ).join('')}
         </div>
         <div id="quizFeedback"></div>
@@ -256,10 +262,10 @@ const Quiz = (() => {
       </div>`;
 
     // 自動再生
-    setTimeout(() => Speech.speakMalay(q.ms), 400);
+    setTimeout(() => Speech[lang.speakMethod](q[lang.field]), 400);
   }
 
-  function answerMsListening(selectedId, correctId) {
+  function answerSecondListening(selectedId, correctId) {
     if (AppState.quizAnswered) return;
     AppState.quizAnswered = true;
 
@@ -274,12 +280,13 @@ const Quiz = (() => {
     const correct = selectedId === correctId;
     if (correct) AppState.quizScore++;
 
+    const lang = Lang.current();
     const correctPhrase = PHRASES.find(p => p.id === correctId);
     const fb = document.getElementById('quizFeedback');
     if (fb) fb.innerHTML = `
       <div class="quiz-feedback ${correct ? 'is-correct' : 'is-wrong'}">
         ${correct ? '✓ 正解！' : `✗ 不正解。正解: ${correctPhrase.jp}`}
-        <div style="font-size:12px;margin-top:4px;">マレー語: <strong>${correctPhrase.ms}</strong></div>
+        <div style="font-size:12px;margin-top:4px;">${lang.label}: <strong>${correctPhrase[lang.field]}</strong></div>
       </div>`;
 
     const next = document.getElementById('quizNext');
@@ -287,36 +294,37 @@ const Quiz = (() => {
   }
 
   /* ================================================================
-     ★ NEW: Mode: マレー語スピーキング (マレー語フレーズを発話練習)
+     Mode: 第二言語スピーキング (マレー語 or スペイン語 フレーズを発話練習)
      ================================================================ */
 
-  function _renderMsSpeaking(el) {
+  function _renderSecondSpeaking(el) {
+    const lang = Lang.current();
     const q = AppState.quizItems[AppState.quizIndex];
     const pct = _pct();
-    const msEsc = q.ms.replace(/'/g, "\\'");
+    const secondEsc = q[lang.field].replace(/'/g, "\\'");
 
     el.innerHTML = `
       <div class="quiz-box">
         <div class="quiz-box__progress">${AppState.quizIndex + 1} / ${AppState.quizItems.length}　スコア: ${AppState.quizScore}</div>
         <div class="quiz-box__progress-wrap">
-          <div class="quiz-box__progress-bar" style="width:${pct}%;background:#7C3AED"></div>
+          <div class="quiz-box__progress-bar" style="width:${pct}%;background:${lang.cssSuffix === 'es' ? 'var(--spanish)' : '#7C3AED'}"></div>
         </div>
-        <div class="quiz-box__question">次のマレー語フレーズを発音してください</div>
-        <div class="quiz-box__main-text">${q.ms}</div>
-        <div style="font-size:12px;color:var(--text3);margin:-14px 0 4px;">読み方: ${q.kana}</div>
+        <div class="quiz-box__question">次の${lang.label}フレーズを発音してください</div>
+        <div class="quiz-box__main-text">${q[lang.field]}</div>
+        <div style="font-size:12px;color:var(--text3);margin:-14px 0 4px;">読み方: ${q[lang.kanaField]}</div>
         <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">${q.jp}</div>
         <div style="margin-bottom:12px;">
-          <button class="btn btn--ms btn--sm" onclick="Speech.speakMalay('${msEsc}')">🔊 手本を聞く</button>
+          <button class="btn btn--${lang.cssSuffix} btn--sm" onclick="Speech.${lang.speakMethod}('${secondEsc}')">🔊 手本を聞く</button>
         </div>
         <div class="mic-area">
-          <button class="mic-btn mic-btn--ms" id="micBtn" onclick="Quiz.startMsSpeakingCheck('${msEsc}')">
+          <button class="mic-btn mic-btn--${lang.cssSuffix}" id="micBtn" onclick="Quiz.startSecondSpeakingCheck('${secondEsc}')">
             <svg width="20" height="28" viewBox="0 0 20 28" fill="none">
               <rect x="5" y="1" width="10" height="16" rx="5" fill="white"/>
               <path d="M1 14c0 4.97 4.03 9 9 9s9-4.03 9-9" stroke="white" stroke-width="2" stroke-linecap="round"/>
               <line x1="10" y1="23" x2="10" y2="27" stroke="white" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </button>
-          <div class="mic-area__status" id="micStatus">タップしてマレー語で話す</div>
+          <div class="mic-area__status" id="micStatus">タップして${lang.label}で話す</div>
           <div id="recognitionResult"></div>
         </div>
         <div id="pronVerdict"></div>
@@ -324,7 +332,7 @@ const Quiz = (() => {
       </div>`;
   }
 
-  function startMsSpeakingCheck(targetText) {
+  function startSecondSpeakingCheck(targetText) {
     const micBtn    = document.getElementById('micBtn');
     const micStatus = document.getElementById('micStatus');
     if (!micBtn || !micStatus) return;
@@ -333,7 +341,7 @@ const Quiz = (() => {
     micStatus.textContent = '聞いています...';
 
     Speech.startRecognition({
-      lang: 'ms-MY',
+      lang: Lang.current().recogLang,
       onResult(transcript) {
         micBtn.classList.remove('is-listening');
         const score = Speech.similarity(transcript, targetText);
@@ -409,8 +417,8 @@ const Quiz = (() => {
     startPronunciationCheck,
     revealSelfCheck,
     selfCheckResult,
-    answerMsListening,
-    startMsSpeakingCheck,
+    answerSecondListening,
+    startSecondSpeakingCheck,
     next,
   };
 })();

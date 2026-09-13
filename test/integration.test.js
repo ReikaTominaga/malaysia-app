@@ -60,7 +60,7 @@ test('router.js loaded before app.js', () => {
   assert(ri < ai, 'router.js must load before app.js');
 });
 test('app.js is last script', () => {
-  const scripts = ['data.js','state.js','speech.js','cost.js','router.js','phrases.js','quiz.js','roleplay.js','tips.js','app.js'];
+  const scripts = ['data.js','state.js','lang.js','speech.js','cost.js','router.js','phrases.js','quiz.js','roleplay.js','tips.js','app.js'];
   const indices = scripts.map(s => indexHtml.indexOf(s));
   const appIdx  = indices[indices.length - 1];
   assert(indices.every(i => i <= appIdx), 'app.js must be last');
@@ -149,7 +149,7 @@ ROLEPLAY_IDS.forEach(id => {
 console.log('\n🔗 Integration — Today\'s phrase DOM elements');
 // ============================================================
 
-const TODAY_IDS = ['todayBanner','todayBannerEn','todayBannerJp','todayBannerKana','todayBannerMs','todayBannerPlay','todayPageEn','todayPageJp','todayPageKana','todayPageMs','todayRelatedGrid'];
+const TODAY_IDS = ['todayBanner','todayBannerEn','todayBannerJp','todayBannerKana','todayBannerSecond','todayBannerPlay','todayBannerPlaySecond','todayPageEn','todayPageJp','todayPageKana','todayPageSecond','todayRelatedGrid'];
 TODAY_IDS.forEach(id => {
   test(`Today's phrase DOM id="${id}" exists`, () => contains(indexHtml, `id="${id}"`));
 });
